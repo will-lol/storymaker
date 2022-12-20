@@ -187,7 +187,7 @@
             currentPlayer.colour
           );
           textArea.style.borderColor = "hsl(" + currentPlayer.colour + ")";
-          if (currentPlayer.id > 1) {
+          if (counter > 0) {
             const prevSnippet = document.createElement("p");
             const snippetMost = story[story.length - 1].snippet.split(" ");
             const lastSnippet = [];

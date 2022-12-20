@@ -13,6 +13,23 @@
       body {
         font-family: "Cormorant";
         padding: 2ch;
+        display: flex;
+        justify-content: center;
+      }
+      p {
+        width: 100%;
+        font-size: 2rem;
+        line-height: 2;
+      }
+      @media (min-width: 641px) {
+        p {
+          width: 75vw;
+        }
+      }
+      @media (min-width: 1025px) {
+        p {
+          width: 50vw;
+        }
       }
       span {
         border-bottom: 1px solid;
