@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story result</title>
+  </head>
+  <body>
+    <p id="container"></p>
+    <style>
+      @import url(root.css);
+      body {
+        font-family: "Cormorant";
+        padding: 2ch;
+      }
+      span {
+        border-bottom: 1px solid;
+      }
+    </style>
+    <script>
+        const story = JSON.parse(localStorage.getItem("story"));
+        const wrap = document.getElementById("container");
+        story.forEach(element => {
+            const snippet = document.createElement("span");
+            snippet.innerText = element.snippet + " ";
+            snippet.style.borderColor = "hsl(" + element.player.colour + ")";
+            wrap.appendChild(snippet);
+        });
+    </script>
+  </body>
+</html>

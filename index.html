@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Story Maker</title>
+  </head>
+  <body>
+    <style>
+      @import url(button.css);
+      @import url(root.css);
+
+      .text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 90vh;
+        margin: 2ch;
+        margin-top: 6ch;
+        width: 100%;
+      }
+      .text div {
+        width: 100%;
+      }
+      .text p {
+        color: gray;
+        font-family: "Cormorant";
+        line-height: 1.5;
+        font-size: 1.5rem;
+        border-left: 0.2ch solid;
+        padding-left: 1ch;
+        width: 100%;
+      }
+      .text p span {
+        color: black;
+      }
+      b {
+        margin-bottom: 0.7ch;
+      }
+      body {
+        --boxShadowColour: black;
+        padding: 1ch;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: space-between;
+        min-height: 100vh;
+        min-width: 100vw;
+        margin: 0;
+        padding: 0;
+        box-shadow: inset 0 0 3ch hsla(var(--boxShadowColour), 0.5),
+          inset 0 0 0.5ch hsla(var(--boxShadowColour), 1),
+          inset 0 0 10ch hsla(var(--boxShadowColour), 0.2);
+      }
+      textarea {
+        min-height: 30ch;
+        margin-bottom: 1ch;
+        border-radius: 0.5ch;
+        border: 1px solid black;
+        padding: 1ch;
+        resize: vertical;
+      }
+      .text__prev {
+        margin-bottom: 1ch;
+      }
+      .notify {
+        position: fixed;
+        z-index: 1;
+        width: 100vw;
+        height: 100vh;
+        transform: translateY(0vh);
+        background-color: inherit;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        outline: 1px solid black;
+        transition: transform 1s ease;
+      }
+      .notify__div {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+      }
+      .end__div {
+        display: none;
+      }
+      .notify__div__out {
+        transform: translateY(100vh);
+      }
+      #submit {
+        margin-bottom: 6ch;
+        width: 100%;
+      }
+      [contenteditable] {
+        color: black !important;
+        cursor: text;
+        outline-offset: 1ch;
+      }
+      [contenteditable][placeholder]:empty:before {
+        z-index: 0;
+        content: attr(placeholder);
+        position: absolute;
+        color: gray;
+        background-color: transparent;
+      }
+      @media (min-width: 641px) {
+        .text {
+          width: 75vw;
+        }
+      }
+      @media (min-width: 1025px) {
+        .text {
+          width: 50vw;
+        }
+      }
+    </style>
+    <div class="notify" id="notify">
+      <div id="notifyContent" class="notify__div">
+        <h1>Pass the computer to player <span id="num">1</span></h1>
+        <button class="next">I'm here!</button>
+      </div>
+      <div id="endContent" class="notify__div end__div">
+        <h1>Game ended!</h1>
+        <button id="result">View result</button>
+      </div>
+    </div>
+    <div class="text">
+      <div id="story">
+        <p
+          id="editable"
+          contenteditable
+          placeholder="write a sentence or more here"
+        ></p>
+      </div>
+      <button id="submit">Submit</button>
+    </div>
+    <script type="module">
+      import { colours } from "./colours.js";
+      import { CircularQueue } from "./circularQueue.js";
+      import { scramble } from "./stringScramble.js";
+      import { arrayToString } from "./arrayToString.js";
+
+      let story = Array();
+
+      const params = new URL(document.location).searchParams;
+      if (!params.get("players")) {
+        params.set("players", 3);
+        window.history.replaceState({}, "", `${location.pathname}?${params}`);
+      }
+      if (!params.get("rounds")) {
+        params.set("rounds", 2);
+        window.history.replaceState({}, "", `${location.pathname}?${params}`);
+      }
+
+      const playerMax = params.get("players");
+      const roundMax = params.get("rounds");
+      const writingRoundMax = playerMax * roundMax;
+      const players = new CircularQueue(playerMax);
+      console.log(players);
+      for (let i = 0; i < playerMax; i++) {
+        players.enqueue({ id: i + 1, colour: colours[i] });
+      }
+
+      let currentPlayer;
+      const playerNumElem = document.getElementById("num");
+      const textArea = document.getElementById("editable");
+      const storyWrap = document.getElementById("story");
+      let lastFewWords;
+      function next() {
+        const notify = document.getElementById("notify");
+        if (notify.classList.contains("notify__div__out")) {
+          if ((playerNumElem.innerText = currentPlayer.id + 1) > playerMax) {
+            playerNumElem.innerText = 1;
+          } else {
+            playerNumElem.innerText = currentPlayer.id + 1;
+          }
+          notify.classList.remove("notify__div__out");
+        } else {
+          textArea.textContent = "";
+          currentPlayer = players.dequeue();
+          players.enqueue(currentPlayer);
+          console.log(currentPlayer);
+          document.body.style.setProperty(
+            "--boxShadowColour",
+            currentPlayer.colour
+          );
+          textArea.style.borderColor = "hsl(" + currentPlayer.colour + ")";
+          if (currentPlayer.id > 1) {
+            const prevSnippet = document.createElement("p");
+            const snippetMost = story[story.length - 1].snippet.split(" ");
+            const lastSnippet = [];
+            for (let i = 4; i >= 1; i--) {
+              lastSnippet.push(snippetMost[snippetMost.length - i]);
+            }
+            for (let i = 1; i <= 4; i++) {
+              snippetMost.pop();
+            }
+            console.log(snippetMost);
+            console.log(lastSnippet);
+            prevSnippet.innerText = scramble(arrayToString(snippetMost));
+            const lastSnippetElem = document.createElement("span");
+            lastSnippetElem.innerText = arrayToString(lastSnippet);
+            prevSnippet.appendChild(lastSnippetElem);
+            prevSnippet.style.borderColor =
+              "hsl(" + story[story.length - 1].player.colour + ")";
+            storyWrap.insertBefore(prevSnippet, textArea);
+          }
+          notify.classList.add("notify__div__out");
+        }
+      }
+
+      const nextButtons = document.querySelectorAll(".next");
+      nextButtons.forEach((el) => el.addEventListener("click", next));
+      console.log(nextButtons);
+
+      let counter = 0;
+      function submit(el) {
+        const snippet = textArea.textContent.trim();
+        story.push({ snippet: snippet, player: currentPlayer });
+        if (counter >= writingRoundMax - 1) {
+          document.getElementById("notifyContent").style.display = "none";
+          document.getElementById("endContent").style.display = "flex";
+          document.getElementById("result").addEventListener("click", end);
+          notify.classList.remove("notify__div__out");
+        } else {
+          next();
+        }
+        counter++;
+      }
+      function end() {
+        localStorage.setItem("story", JSON.stringify(story));
+        window.location.href = "./result.html";
+      }
+      const submitButton = document.getElementById("submit");
+      submitButton.addEventListener("click", submit);
+    </script>
+  </body>
+</html>
