@@ -163,7 +163,6 @@
       const roundMax = params.get("rounds");
       const writingRoundMax = playerMax * roundMax;
       const players = new CircularQueue(playerMax);
-      console.log(players);
       for (let i = 0; i < playerMax; i++) {
         players.enqueue({ id: i + 1, colour: colours[i] });
       }
@@ -189,7 +188,6 @@
           textArea.textContent = "";
           currentPlayer = players.dequeue();
           players.enqueue(currentPlayer);
-          console.log(currentPlayer);
           document.body.style.setProperty(
             "--boxShadowColour",
             currentPlayer.colour
@@ -205,8 +203,6 @@
             for (let i = 1; i <= 4; i++) {
               snippetMost.pop();
             }
-            console.log(snippetMost);
-            console.log(lastSnippet);
             prevSnippet.innerText = scramble(arrayToString(snippetMost));
             const lastSnippetElem = document.createElement("span");
             lastSnippetElem.innerText = arrayToString(lastSnippet);
