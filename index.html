@@ -119,7 +119,7 @@
     <div class="notify" id="notify">
       <div id="notifyContent" class="notify__div">
         <h1>Pass the computer to player <span id="num">1</span></h1>
-        <button class="next">I'm here!</button>
+        <button id="next" class="next">I'm here!</button>
       </div>
       <div id="endContent" class="notify__div end__div">
         <h1>Game ended!</h1>
@@ -177,6 +177,7 @@
             playerNumElem.innerText = currentPlayer.id + 1;
           }
           notify.classList.remove("notify__div__out");
+          nextButton.focus();
         } else {
           textArea.textContent = "";
           currentPlayer = players.dequeue();
@@ -207,13 +208,12 @@
               "hsl(" + story[story.length - 1].player.colour + ")";
             storyWrap.insertBefore(prevSnippet, textArea);
           }
+          textArea.focus();
           notify.classList.add("notify__div__out");
         }
       }
 
-      const nextButtons = document.querySelectorAll(".next");
-      nextButtons.forEach((el) => el.addEventListener("click", next));
-      console.log(nextButtons);
+      const nextButton = document.getElementById("next").addEventListener("click", next);
 
       let counter = 0;
       function submit(el) {
@@ -235,6 +235,7 @@
       }
       const submitButton = document.getElementById("submit");
       submitButton.addEventListener("click", submit);
+      submitButton.focus();
     </script>
   </body>
 </html>
