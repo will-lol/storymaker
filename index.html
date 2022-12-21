@@ -172,6 +172,8 @@
       const playerNumElem = document.getElementById("num");
       const textArea = document.getElementById("editable");
       const storyWrap = document.getElementById("story");
+      const nextButton = document.getElementById("next");
+      nextButton.addEventListener("click", next);
       let lastFewWords;
       function next() {
         const notify = document.getElementById("notify");
@@ -217,8 +219,6 @@
           notify.classList.add("notify__div__out");
         }
       }
-
-      const nextButton = document.getElementById("next").addEventListener("click", next);
 
       let counter = 0;
       function submit(el) {
